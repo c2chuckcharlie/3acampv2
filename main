@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3A Global Innovation Lab</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- FontAwesome (for Icons instead of SVG) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Base font settings based on language will be handled in JS or utility classes */
+        body {
+            font-family: 'Inter', 'Noto Sans TC', 'Noto Sans JP', sans-serif;
+        }
+
+        /* Chart Container Strict Styling */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px; /* Mobile default */
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+
+        /* Smooth transitions */
+        .transition-fade {
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        /* Custom scrollbar for cleanliness */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+
+        /* Accordion transitions */
+        .faq-content {
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+        }
+        .faq-content.active {
+            opacity: 1;
+        }
+    </style>
+    
+    <!-- Chosen Palette: Tech Blue (#007AFF), Sustainable Green (#34C759), International Orange (#FF9500) -->
+    <!-- Application Structure Plan: 
+         1. Sticky Nav: Constant access to language switch and CTA.
+         2. Hero: High impact, establishes the 3A pillars immediately.
+         3. Safety (Priority): Dedicated section with distinct styling to build trust (Parent/School concern).
+         4. Global/EMI: Explains the "How" (English environment).
+         5. Analytics Dashboard: Visualizing the abstract "Growth" and "Curriculum Balance" using Chart.js to make the benefits tangible.
+         6. Agenda: Interactive Tabs (Day 1 / Day 2) to reduce scroll fatigue and allow focused exploring.
+         7. Target Audience: Grid for quick identification.
+         8. FAQ: Accordion to handle detailed queries without clutter.
+    -->
+    <!-- Visualization & Content Choices:
+         1. Student Competency Radar Chart: Visualizes the multi-faceted skill growth (Hard & Soft skills) described in the "Outcome" section. Goal: Show value.
+         2. Curriculum Composition Doughnut Chart: Breaks down the 2-day intensity into digestible categories (Hands-on, Discussion, AI). Goal: Inform balance.
+         3. Interactive Day Tabs: Organizes the chronological flow.
+         4. FAQ Accordion: Organizes text-heavy Q&A. 
+         Library: Chart.js for canvas rendering. Vanilla JS for logic. FontAwesome for icons. 
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased selection:bg-blue-100 selection:text-blue-800">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 bg-white/95 backdrop-blur-sm shadow-sm transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer" onclick="window.scrollTo(0,0)">
+                    <i class="fa-solid fa-drone text-blue-600 text-2xl"></i>
+                    <span class="font-bold text-xl tracking-tight text-slate-800">3A Global Lab</span>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#features" class="text-gray-600 hover:text-blue-600 font-medium transition" data-key="nav_features">Features</a>
+                    <a href="#safety" class="text-gray-600 hover:text-blue-600 font-medium transition" data-key="nav_safety">Safety</a>
+                    <a href="#agenda" class="text-gray-600 hover:text-blue-600 font-medium transition" data-key="nav_agenda">Agenda</a>
+                    <a href="#contact" class="text-gray-600 hover:text-blue-600 font-medium transition" data-key="nav_contact">Contact</a>
+                </div>
+
+                <!-- Right Side: Lang & CTA -->
+                <div class="hidden md:flex items-center gap-4">
+                    <!-- Language Switcher -->
+                    <div class="flex border border-gray-200 rounded-lg overflow-hidden p-1 bg-gray-50">
+                        <button onclick="setLang('zh')" id="btn-zh" class="px-3 py-1 text-sm rounded-md transition font-medium">繁</button>
+                        <button onclick="setLang('en')" id="btn-en" class="px-3 py-1 text-sm rounded-md transition font-medium">EN</button>
+                        <button onclick="setLang('jp')" id="btn-jp" class="px-3 py-1 text-sm rounded-md transition font-medium">日</button>
+                    </div>
+                    <!-- CTA -->
+                    <a href="#contact" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-full font-bold shadow-lg shadow-blue-600/20 transition transform hover:-translate-y-0.5" data-key="nav_cta">
+                        Apply Now
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-gray-600 hover:text-blue-600 focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Panel -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100">
+            <div class="px-4 pt-2 pb-6 space-y-1">
+                <a href="#features" class="block px-3 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-md" data-key="nav_features" onclick="toggleMobileMenu()">Features</a>
+                <a href="#safety" class="block px-3 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-md" data-key="nav_safety" onclick="toggleMobileMenu()">Safety</a>
+                <a href="#agenda" class="block px-3 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-md" data-key="nav_agenda" onclick="toggleMobileMenu()">Agenda</a>
+                <a href="#contact" class="block px-3 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-md" data-key="nav_contact" onclick="toggleMobileMenu()">Contact</a>
+                
+                <div class="pt-4 flex gap-2 justify-center">
+                    <button onclick="setLang('zh')" class="flex-1 py-2 border rounded text-center text-sm font-medium hover:bg-gray-50">繁體中文</button>
+                    <button onclick="setLang('en')" class="flex-1 py-2 border rounded text-center text-sm font-medium hover:bg-gray-50">English</button>
+                    <button onclick="setLang('jp')" class="flex-1 py-2 border rounded text-center text-sm font-medium hover:bg-gray-50">日本語</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-20">
+
+        <!-- HERO SECTION -->
+        <section id="home" class="relative bg-gradient-to-br from-slate-900 to-blue-900 text-white pb-16 pt-12 md:pt-20 lg:pb-24 overflow-hidden">
+            <!-- Decorative Background Elements -->
+            <div class="absolute top-0 left-0 w-full h-full overflow-hidden opacity-20 pointer-events-none">
+                <div class="absolute top-[-10%] right-[-5%] w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-[-10%] left-[-10%] w-72 h-72 bg-green-500 rounded-full blur-3xl"></div>
+            </div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+                <div class="inline-block mb-4 px-4 py-1.5 rounded-full bg-blue-800/50 border border-blue-500/30 text-blue-200 text-sm font-semibold tracking-wide uppercase backdrop-blur-md">
+                    <span data-key="hero_badge">Future Innovation Workshop</span>
+                </div>
+                
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 leading-tight" data-key="hero_title">
+                    3A Global Innovation Lab
+                </h1>
+                
+                <p class="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto mb-10 font-light" data-key="hero_subtitle">
+                    Immersive English • AI & Drone Tech • Sustainable Innovation
+                </p>
+
+                <div class="flex flex-col sm:flex-row justify-center gap-4 mb-16">
+                    <a href="#contact" class="bg-orange-500 hover:bg-orange-600 text-white text-lg px-8 py-4 rounded-full font-bold shadow-lg shadow-orange-500/30 transition transform hover:-translate-y-1" data-key="hero_cta">
+                        Book a Workshop
+                    </a>
+                    <a href="#features" class="bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm border border-white/20 text-lg px-8 py-4 rounded-full font-semibold transition">
+                        <span data-key="hero_learn_more">Explore More</span> <i class="fa-solid fa-arrow-down ml-2 text-sm"></i>
+                    </a>
+                </div>
+
+                <!-- 3 Pillars Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left" id="features">
+                    <!-- Agile -->
+                    <div class="bg-white/10 backdrop-blur-md border border-white/10 p-6 rounded-2xl hover:bg-white/15 transition duration-300">
+                        <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mb-4 text-white text-xl">
+                            <i class="fa-solid fa-lightbulb"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-white" data-key="val_agile_title">Agile Design Thinking</h3>
+                        <p class="text-blue-100 text-sm leading-relaxed" data-key="val_agile_desc">Empathize with global issues and define solutions using structured design thinking methodologies.</p>
+                    </div>
+                    <!-- AI -->
+                    <div class="bg-white/10 backdrop-blur-md border border-white/10 p-6 rounded-2xl hover:bg-white/15 transition duration-300">
+                        <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mb-4 text-white text-xl">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-white" data-key="val_ai_title">AI Application</h3>
+                        <p class="text-blue-100 text-sm leading-relaxed" data-key="val_ai_desc">Leverage Generative AI for scriptwriting, research, and creative storyboard development.</p>
+                    </div>
+                    <!-- Aerial -->
+                    <div class="bg-white/10 backdrop-blur-md border border-white/10 p-6 rounded-2xl hover:bg-white/15 transition duration-300">
+                        <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mb-4 text-white text-xl">
+                            <i class="fa-solid fa-plane-up"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-white" data-key="val_drone_title">Aerial Tech</h3>
+                        <p class="text-blue-100 text-sm leading-relaxed" data-key="val_drone_desc">See the world from a new perspective with professional drone operations and aerial cinematography.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SAFETY SECTION -->
+        <section id="safety" class="py-16 bg-white relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <span class="text-green-600 font-bold tracking-wider uppercase text-sm mb-2 block" data-key="safety_badge">Safety First</span>
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900" data-key="safety_title">Professional Supervision, 100% Safety</h2>
+                    <div class="w-20 h-1 bg-green-500 mx-auto mt-4 rounded-full"></div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                    <!-- NIU Team Card -->
+                    <div class="bg-slate-50 border border-slate-100 p-8 rounded-2xl shadow-sm hover:shadow-md transition flex flex-col items-center text-center">
+                        <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-3xl mb-6">
+                            <i class="fa-solid fa-user-shield"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4" data-key="safety_niu_title">NIU Certified Team</h3>
+                        <p class="text-gray-600 leading-relaxed" data-key="safety_niu_text">
+                            Led by National Ilan University experts. All flights operated by certified professionals adhering to strict aviation laws.
+                        </p>
+                    </div>
+
+                    <!-- TRUST Test Card -->
+                    <div class="bg-slate-50 border border-slate-100 p-8 rounded-2xl shadow-sm hover:shadow-md transition flex flex-col items-center text-center">
+                        <div class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 text-3xl mb-6">
+                            <i class="fa-solid fa-clipboard-check"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4" data-key="safety_trust_title">TRUST Safety Test</h3>
+                        <p class="text-gray-600 leading-relaxed" data-key="safety_trust_text">
+                            Students complete the FAA-recognized TRUST module. We cultivate responsible digital citizenship alongside technical skills.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GLOBAL & EMI + ANALYTICS SECTION -->
+        <section class="py-16 bg-gray-50 border-t border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Text Intro -->
+                <div class="text-center mb-12">
+                    <span class="text-orange-500 font-bold tracking-wider uppercase text-sm mb-2 block" data-key="global_badge">Global Vision</span>
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6" data-key="global_title">Real Global Interaction</h2>
+                    <p class="max-w-2xl mx-auto text-gray-600 mb-8" data-key="global_intro_p">
+                        This section highlights our immersive English environment and the tangible skills students acquire. We use data to visualize the balanced curriculum and the comprehensive growth students experience.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+                    <!-- Feature: EMI -->
+                    <div class="flex gap-5">
+                        <div class="flex-shrink-0">
+                            <div class="flex items-center justify-center h-12 w-12 rounded-md bg-blue-600 text-white text-xl">
+                                <i class="fa-solid fa-earth-americas"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold text-gray-900 mb-2" data-key="global_emi_title">English-Medium Instruction</h4>
+                            <p class="text-gray-600 leading-relaxed" data-key="global_emi_text">
+                                Full immersion simulating international workshops. Students learn to think and solve problems in English.
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Feature: TAs -->
+                    <div class="flex gap-5">
+                        <div class="flex-shrink-0">
+                            <div class="flex items-center justify-center h-12 w-12 rounded-md bg-orange-500 text-white text-xl">
+                                <i class="fa-solid fa-users-rays"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold text-gray-900 mb-2" data-key="global_ta_title">International TAs</h4>
+                            <p class="text-gray-600 leading-relaxed" data-key="global_ta_text">
+                                International university students act as mentors, providing cross-cultural perspectives and confidence boosting.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ANALYTICS DASHBOARD -->
+                <div class="bg-white rounded-3xl shadow-lg p-6 md:p-10 border border-gray-100">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-8 text-center" data-key="analytics_title">Learning Outcomes & Curriculum Balance</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                        <!-- Chart 1: Competency Radar -->
+                        <div class="flex flex-col items-center">
+                            <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4" data-key="chart_radar_title">Student Competency Growth</h4>
+                            <div class="chart-container">
+                                <canvas id="competencyChart"></canvas>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-2 text-center italic" data-key="chart_radar_note">Estimated skill enhancement over 2 days</p>
+                        </div>
+
+                        <!-- Chart 2: Curriculum Doughnut -->
+                        <div class="flex flex-col items-center">
+                            <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4" data-key="chart_doughnut_title">Curriculum Time Allocation</h4>
+                            <div class="chart-container" style="max-height: 300px;">
+                                <canvas id="curriculumChart"></canvas>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-2 text-center italic" data-key="chart_doughnut_note">Balance between theory, practice, and creation</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- AGENDA SECTION (Interactive Tabs) -->
+        <section id="agenda" class="py-16 bg-white">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl font-bold text-gray-900" data-key="agenda_title">Two-Day Intensive Agenda</h2>
+                    <p class="text-gray-500 mt-2" data-key="agenda_subtitle">From theory to aerial storytelling</p>
+                </div>
+
+                <!-- Tabs -->
+                <div class="flex justify-center mb-8">
+                    <div class="bg-gray-100 p-1 rounded-xl inline-flex">
+                        <button id="tab-day1" onclick="switchTab('day1')" class="px-6 py-2.5 rounded-lg text-sm font-bold transition-all shadow-sm bg-white text-blue-600">
+                            <span data-key="day1_label">Day 1: Explore & Define</span>
+                        </button>
+                        <button id="tab-day2" onclick="switchTab('day2')" class="px-6 py-2.5 rounded-lg text-sm font-bold text-gray-500 hover:text-gray-700 transition-all">
+                            <span data-key="day2_label">Day 2: Create & Present</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Day 1 Content -->
+                <div id="content-day1" class="space-y-6 animate-fade-in">
+                    <!-- Item -->
+                    <div class="flex group">
+                        <div class="flex flex-col items-center mr-4">
+                            <div class="w-px h-full bg-gray-200 group-last:h-4"></div>
+                            <div class="w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow-sm absolute mt-2"></div>
+                        </div>
+                        <div class="pb-8">
+                            <span class="text-sm font-bold text-blue-600">09:00</span>
+                            <h4 class="text-lg font-bold text-gray-900 mt-1" data-key="d1_t1_title">Ice Breaking & Environment Setup</h4>
+                            <p class="text-gray-600 text-sm mt-1" data-key="d1_t1_desc">Team formation and English immersion intro.</p>
+                        </div>
+                    </div>
+                    <!-- Item -->
+                    <div class="flex group">
+                        <div class="flex flex-col items-center mr-4">
+                            <div class="w-px h-full bg-gray-200"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500 border-2 border-white shadow-sm absolute mt-2"></div>
+                        </div>
+                        <div class="pb-8">
+                            <span class="text-sm font-bold text-green-600">10:30</span>
+                            <h4 class="text-lg font-bold text-gray-900 mt-1" data-key="d1_t2_title">Aviation Regulations & TRUST Test</h4>
+                            <p class="text-gray-600 text-sm mt-1" data-key="d1_t2_desc">Crucial safety education and certification.</p>
+                        </div>
+                    </div>
+                    <!-- Item -->
+                    <div class="flex group">
+                        <div class="flex flex-col items-center mr-4">
+                            <div class="w-px h-full bg-gray-200"></div>
+                            <div class="w-3 h-3 rounded-full bg-purple-500 border-2 border-white shadow-sm absolute mt-2"></div>
+                        </div>
+                        <div class="pb-8">
+                            <span class="text-sm font-bold text-purple-600">13:30</span>
+                            <h4 class="text-lg font-bold text-gray-900 mt-1" data-key="d1_t3_title">Design Thinking: Empathize & Define</h4>
+                            <p class="text-gray-600 text-sm mt-1" data-key="d1_t3_desc">Focusing on 17 SDGs solutions.</p>
+                        </div>
+                    </div>
+                    <!-- Item -->
+                    <div class="flex group">
+                        <div class="flex flex-col items-center mr-4">
+                            <div class="w-px h-full bg-transparent"></div> <!-- End line -->
+                            <div class="w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow-sm absolute mt-2"></div>
+                        </div>
+                        <div>
+                            <span class="text-sm font-bold text-blue-600">15:30</span>
+                            <h4 class="text-lg font-bold text-gray-900 mt-1" data-key="d1_t4_title">Basic Flight Principles & Experience</h4>
+                            <p class="text-gray-600 text-sm mt-1" data-key="d1_t4_desc">Hands-on practice guided by Pro Team.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Day 2 Content (Hidden by default) -->
+                <div id="content-day2" class="space-y-6 hidden animate-fade-in">
+                    <!-- Item -->
+                    <div class="flex group">
+                        <div class="flex flex-col items-center mr-4">
+                            <div class="w-px h-full bg-gray-200 group-last:h-4"></div>
+                            <div class="w-3 h-3 rounded-full bg-purple-500 border-2 border-white shadow-sm absolute mt-2"></div>
+                        </div>
+                        <div class="pb-8">
+                            <span class="text-sm font-bold text-purple-600">09:00</span>
+                            <h4 class="text-lg font-bold text-gray-900 mt-1" data-key="d2_t1_title">AI Collaboration: Script & Storyboard</h4>
+                            <p class="text-gray-600 text-sm mt-1" data-key="d2_t1_desc">Using Generative AI to craft English narratives.</p>
+                        </div>
+                    </div>
+                    <!-- Item -->
+                    <div class="flex group">
+                        <div class="flex flex-col items-center mr-4">
+                            <div class="w-px h-full bg-gray-200"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500 border-2 border-white shadow-sm absolute mt-2"></div>
+                        </div>
+                        <div class="pb-8">
+                            <span class="text-sm font-bold text-green-600">10:30</span>
+                            <h4 class="text-lg font-bold text-gray-900 mt-1" data-key="d2_t2_title">Pro Aerial Shooting</h4>
+                            <p class="text-gray-600 text-sm mt-1" data-key="d2_t2_desc">Field operation assisted by certified team.</p>
+                        </div>
+                    </div>
+                    <!-- Item -->
+                    <div class="flex group">
+                        <div class="flex flex-col items-center mr-4">
+                            <div class="w-px h-full bg-gray-200"></div>
+                            <div class="w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow-sm absolute mt-2"></div>
+                        </div>
+                        <div class="pb-8">
+                            <span class="text-sm font-bold text-blue-600">13:30</span>
+                            <h4 class="text-lg font-bold text-gray-900 mt-1" data-key="d2_t3_title">Video Editing & Post-production</h4>
+                            <p class="text-gray-600 text-sm mt-1" data-key="d2_t3_desc">Assembling the SDG impact story.</p>
+                        </div>
+                    </div>
+                    <!-- Item -->
+                    <div class="flex group">
+                        <div class="flex flex-col items-center mr-4">
+                            <div class="w-px h-full bg-transparent"></div>
+                            <div class="w-3 h-3 rounded-full bg-orange-500 border-2 border-white shadow-sm absolute mt-2"></div>
+                        </div>
+                        <div>
+                            <span class="text-sm font-bold text-orange-600">15:30</span>
+                            <h4 class="text-lg font-bold text-gray-900 mt-1" data-key="d2_t4_title">Final Presentation</h4>
+                            <p class="text-gray-600 text-sm mt-1" data-key="d2_t4_desc">English Gala Presentation of final videos.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TARGET AUDIENCE -->
+        <section class="py-16 bg-slate-900 text-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-center mb-12" data-key="target_title">Who is this for?</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Directors -->
+                    <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-blue-500 transition group">
+                        <div class="text-blue-400 text-3xl mb-4 group-hover:scale-110 transition-transform origin-left"><i class="fa-solid fa-school"></i></div>
+                        <h3 class="text-lg font-bold mb-2" data-key="target_director_title">Curriculum Directors</h3>
+                        <p class="text-slate-300 text-sm" data-key="target_director_desc">Implement high-quality bilingual tech curricula.</p>
+                    </div>
+                    <!-- Teachers -->
+                    <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-green-500 transition group">
+                        <div class="text-green-400 text-3xl mb-4 group-hover:scale-110 transition-transform origin-left"><i class="fa-solid fa-chalkboard-user"></i></div>
+                        <h3 class="text-lg font-bold mb-2" data-key="target_teacher_title">Teachers</h3>
+                        <p class="text-slate-300 text-sm" data-key="target_teacher_desc">Full lesson plan support; pros handle risks.</p>
+                    </div>
+                    <!-- Parents -->
+                    <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-orange-500 transition group">
+                        <div class="text-orange-400 text-3xl mb-4 group-hover:scale-110 transition-transform origin-left"><i class="fa-solid fa-users"></i></div>
+                        <h3 class="text-lg font-bold mb-2" data-key="target_parent_title">Parents</h3>
+                        <p class="text-slate-300 text-sm" data-key="target_parent_desc">Safe supervision, boosting global competitiveness.</p>
+                    </div>
+                    <!-- Students -->
+                    <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-purple-500 transition group">
+                        <div class="text-purple-400 text-3xl mb-4 group-hover:scale-110 transition-transform origin-left"><i class="fa-solid fa-graduation-cap"></i></div>
+                        <h3 class="text-lg font-bold mb-2" data-key="target_student_title">Students</h3>
+                        <p class="text-slate-300 text-sm" data-key="target_student_desc">Complete a standout project for applications.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ SECTION -->
+        <section class="py-16 bg-gray-50">
+            <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-center mb-10 text-gray-900" data-key="faq_title">Frequently Asked Questions</h2>
+                
+                <div class="space-y-4">
+                    <!-- Q1 -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <button onclick="toggleFaq(1)" class="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none">
+                            <span class="font-bold text-gray-800" data-key="faq_q1">Do students fly drones themselves?</span>
+                            <i id="icon-faq-1" class="fa-solid fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+                        </button>
+                        <div id="faq-1" class="faq-content bg-gray-50 px-6 border-t border-gray-100">
+                            <p class="py-4 text-gray-600" data-key="faq_a1">Safety is priority #1. High-altitude flights are operated by the certified NIU team.</p>
+                        </div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <button onclick="toggleFaq(2)" class="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none">
+                            <span class="font-bold text-gray-800" data-key="faq_q2">Can students with poor English participate?</span>
+                            <i id="icon-faq-2" class="fa-solid fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+                        </button>
+                        <div id="faq-2" class="faq-content bg-gray-50 px-6 border-t border-gray-100">
+                            <p class="py-4 text-gray-600" data-key="faq_a2">Yes! It's about communication, not exams. TAs and AI tools assist.</p>
+                        </div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <button onclick="toggleFaq(3)" class="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none">
+                            <span class="font-bold text-gray-800" data-key="faq_q3">Will there be a certificate?</span>
+                            <i id="icon-faq-3" class="fa-solid fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+                        </button>
+                        <div id="faq-3" class="faq-content bg-gray-50 px-6 border-t border-gray-100">
+                            <p class="py-4 text-gray-600" data-key="faq_a3">Yes, participants receive a formal workshop certificate.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER & CONTACT -->
+        <footer id="contact" class="bg-blue-900 text-white py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6" data-key="footer_title">Let students stand on the global stage safely.</h2>
+                <p class="text-blue-200 mb-10 max-w-2xl mx-auto" data-key="footer_subtitle">Partner with us now to bring this immersive experience to your school.</p>
+                
+                <form class="max-w-md mx-auto bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 mb-10" onsubmit="event.preventDefault(); alert('Application feature demo!');">
+                    <input type="email" placeholder="School Contact Email" class="w-full px-4 py-3 rounded-lg bg-white/90 text-gray-900 placeholder-gray-500 mb-4 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-lg transition shadow-lg" data-key="footer_btn">
+                        Fill Inquiry Form
+                    </button>
+                </form>
+
+                <div class="border-t border-blue-800 pt-8 text-blue-400 text-sm">
+                    &copy; 2026 3A Global Innovation Lab. All Rights Reserved. <br>
+                    National Ilan University
+                </div>
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- 1. Content Data (Trilingual) ---
+        const content = {
+            zh: {
+                nav_features: "核心特色",
+                nav_safety: "安全保障",
+                nav_agenda: "課程流程",
+                nav_contact: "聯絡我們",
+                nav_cta: "學校團體申請",
+                
+                hero_badge: "未來創新實作營",
+                hero_title: "3A Global Innovation Lab：未來創新實作營",
+                hero_subtitle: "英語沉浸學習 × AI 無人機科技 × 永續創新｜讓孩子在安全中看見世界",
+                hero_cta: "立即預約學校場次",
+                hero_learn_more: "了解更多",
+                
+                val_agile_title: "設計思考 Agile",
+                val_agile_desc: "針對 17 SDGs 議題，運用結構化設計思考方法定義問題並提出同理心解決方案。",
+                val_ai_title: "人工智慧 AI",
+                val_ai_desc: "利用生成式 AI 輔助撰寫英文腳本、進行研究並發展創意分鏡。",
+                val_drone_title: "空拍科技 Aerial",
+                val_drone_desc: "透過專業無人機操作與空拍運鏡，以全新視角觀察世界。",
+                
+                safety_badge: "安全第一",
+                safety_title: "專業團隊監護，飛安 100% 安心",
+                safety_niu_title: "國立宜蘭大學持證團隊",
+                safety_niu_text: "由國立宜蘭大學無人機專業團隊親自帶領。所有飛行操作均由持證專家負責或監督，確保符合法規。",
+                safety_trust_title: "TRUST 安全測驗",
+                safety_trust_text: "每位學生都將接受基礎無人機安全教育，並完成美國 FAA 認可之 TRUST 測驗。培養負責任素養。",
+                
+                global_badge: "全球視野",
+                global_title: "真實的國際交流場域",
+                global_intro_p: "本區塊強調我們的全英語環境以及學生獲得的具體技能。我們使用數據圖表來可視化均衡的課程設計與學生全方位的成長。",
+                global_emi_title: "全英語專案學習 (EMI)",
+                global_emi_text: "全程英語授課，模擬國際研討會氛圍，讓學生習慣用英語「思考」與「解決問題」。",
+                global_ta_title: "國際助教 (International TAs)",
+                global_ta_text: "來自世界各地的外籍大學生擔任小組助教，提供跨文化觀點，協助學生勇敢開口。",
+                
+                analytics_title: "學習成效與課程配比",
+                chart_radar_title: "學生核心能力成長",
+                chart_radar_note: "兩天實作後的預估技能提升",
+                chart_doughnut_title: "課程時間分配",
+                chart_doughnut_note: "理論、實作與創作的黃金比例",
+
+                agenda_title: "兩天密集實作流程",
+                agenda_subtitle: "從理論到空拍敘事的完整旅程",
+                day1_label: "Day 1: 探索與定義",
+                day2_label: "Day 2: 創造與發表",
+                
+                d1_t1_title: "破冰與環境建立",
+                d1_t1_desc: "分組與英語環境建立。",
+                d1_t2_title: "航空法規與 TRUST 測驗",
+                d1_t2_desc: "重要的安全教育與認證。",
+                d1_t3_title: "設計思考：同理與定義",
+                d1_t3_desc: "針對 17 SDGs 議題發想。",
+                d1_t4_title: "基礎飛行原理與體驗",
+                d1_t4_desc: "專業團隊指導下的手感練習。",
+                
+                d2_t1_title: "AI 協作：腳本與分鏡",
+                d2_t1_desc: "使用生成式 AI 撰寫英文敘事。",
+                d2_t2_title: "專業空拍實作",
+                d2_t2_desc: "團隊協助進行戶外操作。",
+                d2_t3_title: "影片剪輯與後製",
+                d2_t3_desc: "將 SDG 故事組裝完成。",
+                d2_t4_title: "全英語成果發表",
+                d2_t4_desc: "最終成果展示與回饋。",
+                
+                target_title: "適合對象",
+                target_director_title: "高中課程主任",
+                target_director_desc: "導入高品質雙語科技跨域課程。",
+                target_teacher_title: "教師",
+                target_teacher_desc: "完整教案支持，專業團隊分擔風險。",
+                target_parent_title: "家長",
+                target_parent_desc: "安全監督下，提升國際競爭力。",
+                target_student_title: "學生",
+                target_student_desc: "完成一份可用於升學的亮眼專案。",
+                
+                faq_title: "常見問答",
+                faq_q1: "學生需要自己操作無人機嗎？",
+                faq_a1: "安全首要考量。高空飛行由持證團隊操作，學生僅在受控環境下體驗。",
+                faq_q2: "英文不好可以參加嗎？",
+                faq_a2: "可以！重點是溝通。國際助教與 AI 工具會全力協助。",
+                faq_q3: "會有證書嗎？",
+                faq_a3: "是的，將獲發「3A 全球創新實作研習證書」。",
+                
+                footer_title: "讓孩子安全地站上國際舞台。",
+                footer_subtitle: "現在就與我們合作，將此沈浸式體驗帶入您的學校。",
+                footer_btn: "填寫合作意向書"
+            },
+            en: {
+                nav_features: "Features",
+                nav_safety: "Safety",
+                nav_agenda: "Agenda",
+                nav_contact: "Contact",
+                nav_cta: "Apply Now",
+                
+                hero_badge: "Future Innovation Workshop",
+                hero_title: "3A Global Innovation Lab",
+                hero_subtitle: "Immersive English • AI & Drone Tech • Sustainable Innovation | Safe Learning, Global Vision.",
+                hero_cta: "Book a Workshop",
+                hero_learn_more: "Explore More",
+                
+                val_agile_title: "Agile Design Thinking",
+                val_agile_desc: "Empathize with global issues and define solutions using structured design thinking methodologies.",
+                val_ai_title: "AI Application",
+                val_ai_desc: "Leverage Generative AI for scriptwriting, research, and creative storyboard development.",
+                val_drone_title: "Aerial Tech",
+                val_drone_desc: "See the world from a new perspective with professional drone operations and aerial cinematography.",
+                
+                safety_badge: "Safety First",
+                safety_title: "Professional Supervision, 100% Safety Guaranteed",
+                safety_niu_title: "NIU Certified Team",
+                safety_niu_text: "Led by National Ilan University experts. All flights operated by certified professionals adhering to strict aviation laws.",
+                safety_trust_title: "TRUST Safety Test",
+                safety_trust_text: "Students complete the FAA-recognized TRUST module. We cultivate responsible digital citizenship.",
+                
+                global_badge: "Global Vision",
+                global_title: "Real Global Interaction",
+                global_intro_p: "This section highlights our immersive English environment and the tangible skills students acquire. We use data to visualize the balanced curriculum and the comprehensive growth students experience.",
+                global_emi_title: "English-Medium Instruction",
+                global_emi_text: "Full immersion simulating international workshops. Students learn to think and solve problems in English.",
+                global_ta_title: "International TAs",
+                global_ta_text: "International university students act as mentors, providing cross-cultural perspectives and confidence.",
+                
+                analytics_title: "Learning Outcomes & Curriculum Balance",
+                chart_radar_title: "Student Competency Growth",
+                chart_radar_note: "Estimated skill enhancement over 2 days",
+                chart_doughnut_title: "Curriculum Time Allocation",
+                chart_doughnut_note: "Balance between theory, practice, and creation",
+
+                agenda_title: "Two-Day Intensive Agenda",
+                agenda_subtitle: "From theory to aerial storytelling",
+                day1_label: "Day 1: Explore & Define",
+                day2_label: "Day 2: Create & Present",
+                
+                d1_t1_title: "Ice Breaking & Environment Setup",
+                d1_t1_desc: "Team formation and English immersion intro.",
+                d1_t2_title: "Aviation Regulations & TRUST Test",
+                d1_t2_desc: "Crucial safety education and certification.",
+                d1_t3_title: "Design Thinking: Empathize & Define",
+                d1_t3_desc: "Focusing on 17 SDGs solutions.",
+                d1_t4_title: "Basic Flight Principles & Experience",
+                d1_t4_desc: "Hands-on practice guided by Pro Team.",
+                
+                d2_t1_title: "AI Collaboration: Script & Storyboard",
+                d2_t1_desc: "Using Generative AI to craft English narratives.",
+                d2_t2_title: "Pro Aerial Shooting",
+                d2_t2_desc: "Field operation assisted by certified team.",
+                d2_t3_title: "Video Editing & Post-production",
+                d2_t3_desc: "Assembling the SDG impact story.",
+                d2_t4_title: "Final Presentation",
+                d2_t4_desc: "English Gala Presentation of final videos.",
+                
+                target_title: "Who is this for?",
+                target_director_title: "Curriculum Directors",
+                target_director_desc: "Implement high-quality bilingual tech curricula.",
+                target_teacher_title: "Teachers",
+                target_teacher_desc: "Full lesson plan support; pros handle risks.",
+                target_parent_title: "Parents",
+                target_parent_desc: "Safe supervision, boosting global competitiveness.",
+                target_student_title: "Students",
+                target_student_desc: "Complete a standout project for applications.",
+                
+                faq_title: "Frequently Asked Questions",
+                faq_q1: "Do students fly drones themselves?",
+                faq_a1: "Safety is priority #1. High-altitude flights are operated by the certified NIU team. Students experience basic flight in controlled environments only.",
+                faq_q2: "Can students with poor English participate?",
+                faq_a2: "Yes! It's about communication, not exams. TAs and AI tools assist.",
+                faq_q3: "Will there be a certificate?",
+                faq_a3: "Yes, participants receive a formal workshop certificate.",
+                
+                footer_title: "Let students stand on the global stage safely.",
+                footer_subtitle: "Partner with us now to bring this immersive experience to your school.",
+                footer_btn: "Fill Inquiry Form"
+            },
+            jp: {
+                nav_features: "特徴",
+                nav_safety: "安全対策",
+                nav_agenda: "スケジュール",
+                nav_contact: "お問い合わせ",
+                nav_cta: "団体申込",
+                
+                hero_badge: "未来のイノベーション",
+                hero_title: "3A グローバル・イノベーション・ラボ",
+                hero_subtitle: "英語イマージョン × AIドローン技術 × 持続可能なイノベーション｜安心安全な環境で世界を広げる",
+                hero_cta: "学校向けワークショップを予約",
+                hero_learn_more: "詳細を見る",
+                
+                val_agile_title: "デザイン思考 (Agile)",
+                val_agile_desc: "SDGsの課題に対し、構造化されたデザイン思考を用いて解決策を定義します。",
+                val_ai_title: "AI活用 (AI)",
+                val_ai_desc: "生成AIを活用して英語の脚本作成、リサーチ、絵コンテ作成を行います。",
+                val_drone_title: "ドローン技術 (Aerial)",
+                val_drone_desc: "プロのドローン操作と空撮技術を通じて、新しい視点で世界を見ます。",
+                
+                safety_badge: "安全第一",
+                safety_title: "専門チームによる監修、100%の安全と安心",
+                safety_niu_title: "国立宜蘭大学有資格チーム",
+                safety_niu_text: "国立宜蘭大学のプロチームが直接指導。全ての飛行は有資格者が管理し、航空法を遵守します。",
+                safety_trust_title: "TRUST 安全テスト",
+                safety_trust_text: "全学生が基礎的な安全教育を受け、米国FAA認可のTRUSTテストの概念を学びます。",
+                
+                global_badge: "グローバルビジョン",
+                global_title: "英語の授業を超えた国際交流",
+                global_intro_p: "このセクションでは、没入型英語環境と習得スキルを紹介します。データを用いて、バランスの取れたカリキュラムと学生の成長を可視化します。",
+                global_emi_title: "オールイングリッシュ学習 (EMI)",
+                global_emi_text: "全編英語での授業で国際会議の雰囲気を再現。英語で「考え」「解決する」習慣を養います。",
+                global_ta_title: "留学生TA",
+                global_ta_text: "世界各国の留学生がメンターとして参加し、異文化の視点と自信を与えます。",
+                
+                analytics_title: "学習成果とカリキュラム構成",
+                chart_radar_title: "学生のコア能力の成長",
+                chart_radar_note: "2日間の実践による推定スキル向上",
+                chart_doughnut_title: "カリキュラム時間配分",
+                chart_doughnut_note: "理論、実践、創作の黄金比",
+
+                agenda_title: "2日間の集中講座",
+                agenda_subtitle: "理論から空撮ストーリーテリングまで",
+                day1_label: "Day 1: 探求と定義",
+                day2_label: "Day 2: 創造と発表",
+                
+                d1_t1_title: "アイスブレイクと環境構築",
+                d1_t1_desc: "チーム編成と英語環境の導入。",
+                d1_t2_title: "航空法規とTRUSTテスト",
+                d1_t2_desc: "重要な安全教育と認定。",
+                d1_t3_title: "デザイン思考：共感と定義",
+                d1_t3_desc: "17のSDGs課題に焦点を当てる。",
+                d1_t4_title: "飛行原理と体験",
+                d1_t4_desc: "専門チーム指導による実技練習。",
+                
+                d2_t1_title: "AI協働：脚本と絵コンテ",
+                d2_t1_desc: "生成AIを使って英語の物語を作成。",
+                d2_t2_title: "プロによる空撮実習",
+                d2_t2_desc: "チームの支援による屋外操作。",
+                d2_t3_title: "動画編集と編集",
+                d2_t3_desc: "SDGストーリーを組み立てる。",
+                d2_t4_title: "英語による成果発表会",
+                d2_t4_desc: "最終動画のプレゼンテーション。",
+                
+                target_title: "対象者",
+                target_director_title: "カリキュラム担当者",
+                target_director_desc: "高品質な技術カリキュラムの導入。",
+                target_teacher_title: "教師",
+                target_teacher_desc: "完全な指導案サポート、リスク管理。",
+                target_parent_title: "保護者",
+                target_parent_desc: "安全管理下での国際競争力向上。",
+                target_student_title: "学生",
+                target_student_desc: "進学に役立つプロジェクトの完成。",
+                
+                faq_title: "よくある質問",
+                faq_q1: "学生が自分でドローンを操作しますか？",
+                faq_a1: "安全が最優先です。高高度飛行は有資格チームが操作し、学生は管理下でのみ体験します。",
+                faq_q2: "英語が苦手でも参加できますか？",
+                faq_a2: "はい！コミュニケーションが目的です。留学生TAとAIがサポートします。",
+                faq_q3: "修了証はありますか？",
+                faq_a3: "はい、公式なワークショップ修了証が発行されます。",
+                
+                footer_title: "安全な環境で、子供たちを世界の舞台へ。",
+                footer_subtitle: "今すぐ提携して、この没入型体験をあなたの学校に。",
+                footer_btn: "提携意向書の記入"
+            }
+        };
+
+        // --- 2. Chart Configurations ---
+        let competencyChartInstance = null;
+        let curriculumChartInstance = null;
+
+        const chartData = {
+            zh: {
+                radarLabels: ["設計思考", "AI 應用", "無人機操作", "英語溝通", "全球意識"],
+                radarLabel: "能力成長幅度",
+                doughnutLabels: ["實作體驗", "小組討論", "AI 創作", "安全教育", "成果發表"]
+            },
+            en: {
+                radarLabels: ["Design Thinking", "AI Application", "Drone Ops", "English Comm", "Global Awareness"],
+                radarLabel: "Skill Growth",
+                doughnutLabels: ["Hands-on", "Group Discussion", "AI Creation", "Safety Edu", "Presentation"]
+            },
+            jp: {
+                radarLabels: ["デザイン思考", "AI活用", "ドローン操作", "英語力", "グローバル意識"],
+                radarLabel: "スキル向上",
+                doughnutLabels: ["実技体験", "グループ討議", "AI制作", "安全教育", "発表"]
+            }
+        };
+
+        function initCharts(lang) {
+            const ctxRadar = document.getElementById('competencyChart').getContext('2d');
+            const ctxDoughnut = document.getElementById('curriculumChart').getContext('2d');
+            
+            // Common styles
+            Chart.defaults.font.family = "'Inter', 'Noto Sans TC', sans-serif";
+            Chart.defaults.color = '#64748b';
+
+            // Radar Chart
+            competencyChartInstance = new Chart(ctxRadar, {
+                type: 'radar',
+                data: {
+                    labels: chartData[lang].radarLabels,
+                    datasets: [{
+                        label: chartData[lang].radarLabel,
+                        data: [85, 90, 75, 80, 88], // Hypothetical growth data
+                        fill: true,
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        pointBackgroundColor: 'rgb(59, 130, 246)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(59, 130, 246)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: '#e2e8f0' },
+                            grid: { color: '#e2e8f0' },
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            ticks: { display: false } // Hide numbers for cleaner look
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            // Doughnut Chart
+            curriculumChartInstance = new Chart(ctxDoughnut, {
+                type: 'doughnut',
+                data: {
+                    labels: chartData[lang].doughnutLabels,
+                    datasets: [{
+                        data: [30, 25, 20, 10, 15], // Time allocation estimate
+                        backgroundColor: [
+                            '#3b82f6', // Blue (Hands-on)
+                            '#f97316', // Orange (Discussion)
+                            '#a855f7', // Purple (AI)
+                            '#22c55e', // Green (Safety)
+                            '#64748b'  // Slate (Presentation)
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { usePointStyle: true, padding: 20 }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateCharts(lang) {
+            if(!competencyChartInstance || !curriculumChartInstance) return;
+
+            // Update Radar
+            competencyChartInstance.data.labels = chartData[lang].radarLabels;
+            competencyChartInstance.data.datasets[0].label = chartData[lang].radarLabel;
+            competencyChartInstance.update();
+
+            // Update Doughnut
+            curriculumChartInstance.data.labels = chartData[lang].doughnutLabels;
+            curriculumChartInstance.update();
+        }
+
+        // --- 3. Language & UI Logic ---
+        let currentLang = 'zh'; // Default
+
+        function setLang(lang) {
+            currentLang = lang;
+            
+            // 1. Update Buttons
+            ['zh', 'en', 'jp'].forEach(l => {
+                const btn = document.getElementById(`btn-${l}`);
+                if(btn) {
+                    if (l === lang) {
+                        btn.classList.add('bg-blue-600', 'text-white', 'shadow-sm');
+                        btn.classList.remove('text-gray-600', 'hover:bg-gray-100');
+                    } else {
+                        btn.classList.remove('bg-blue-600', 'text-white', 'shadow-sm');
+                        btn.classList.add('text-gray-600', 'hover:bg-gray-100');
+                    }
+                }
+            });
+
+            // 2. Update Text Content
+            document.querySelectorAll('[data-key]').forEach(el => {
+                const key = el.getAttribute('data-key');
+                if (content[lang][key]) {
+                    // Add fade effect
+                    el.classList.add('opacity-0');
+                    setTimeout(() => {
+                        el.textContent = content[lang][key];
+                        el.classList.remove('opacity-0');
+                    }, 200);
+                }
+            });
+            
+            // Wait for transition before removing opacity class
+            setTimeout(() => {
+                document.querySelectorAll('[data-key]').forEach(el => el.classList.remove('opacity-0'));
+            }, 500);
+
+            // 3. Update Charts
+            updateCharts(lang);
+            
+            // 4. Update Document Language
+            document.documentElement.lang = lang === 'jp' ? 'ja' : (lang === 'zh' ? 'zh-TW' : 'en');
+        }
+
+        // Tab Switching Logic
+        function switchTab(day) {
+            // Buttons
+            const btn1 = document.getElementById('tab-day1');
+            const btn2 = document.getElementById('tab-day2');
+            
+            // Content
+            const content1 = document.getElementById('content-day1');
+            const content2 = document.getElementById('content-day2');
+
+            if (day === 'day1') {
+                btn1.classList.replace('text-gray-500', 'text-blue-600');
+                btn1.classList.add('bg-white', 'shadow-sm');
+                btn1.classList.remove('hover:text-gray-700');
+                
+                btn2.classList.replace('text-blue-600', 'text-gray-500');
+                btn2.classList.remove('bg-white', 'shadow-sm');
+                btn2.classList.add('hover:text-gray-700');
+
+                content1.classList.remove('hidden');
+                content2.classList.add('hidden');
+            } else {
+                btn2.classList.replace('text-gray-500', 'text-blue-600');
+                btn2.classList.add('bg-white', 'shadow-sm');
+                btn2.classList.remove('hover:text-gray-700');
+
+                btn1.classList.replace('text-blue-600', 'text-gray-500');
+                btn1.classList.remove('bg-white', 'shadow-sm');
+                btn1.classList.add('hover:text-gray-700');
+
+                content2.classList.remove('hidden');
+                content1.classList.add('hidden');
+            }
+        }
+
+        // FAQ Logic
+        function toggleFaq(id) {
+            const content = document.getElementById(`faq-${id}`);
+            const icon = document.getElementById(`icon-faq-${id}`);
+            
+            if (content.style.maxHeight && content.style.maxHeight !== '0px') {
+                content.style.maxHeight = '0px';
+                content.classList.remove('active');
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                content.style.maxHeight = content.scrollHeight + "px";
+                content.classList.add('active');
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        // Mobile Menu
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+            } else {
+                menu.classList.add('hidden');
+            }
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            // Apply text transition class
+            document.querySelectorAll('[data-key]').forEach(el => el.classList.add('transition-fade'));
+            
+            // Initialize with Chinese
+            setLang('zh');
+            initCharts('zh');
+        });
+
+    </script>
+</body>
+</html>
